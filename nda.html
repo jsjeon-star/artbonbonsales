@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>아트봉봉 글로벌 NDA Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy: #0f1f3d;
+    --navy2: #1a3060;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --cream: #f7f4ee;
+    --cream2: #ede9e0;
+    --text: #1a1a2e;
+    --muted: #6b6b80;
+    --border: #d4cebc;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--navy);
+    padding: 2.5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    border: 40px solid rgba(201,168,76,.12);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+  .header-inner { max-width: 760px; margin: 0 auto; }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,.4);
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: .9rem;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: .5rem;
+  }
+  header h1 span { color: var(--gold2); }
+  header p {
+    font-size: 14px;
+    color: rgba(255,255,255,.55);
+    font-weight: 300;
+    margin-top: .4rem;
+  }
+
+  /* ── Steps nav ── */
+  .steps-bar {
+    background: var(--navy2);
+    padding: .6rem 2rem;
+  }
+  .steps-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+  }
+  .step-pill {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: .5rem .75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .step-pill:hover { background: rgba(255,255,255,.06); }
+  .step-pill.active { background: rgba(201,168,76,.15); }
+  .step-num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500;
+    background: rgba(255,255,255,.1);
+    color: rgba(255,255,255,.5);
+    flex-shrink: 0;
+  }
+  .step-pill.active .step-num {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .step-pill.done .step-num {
+    background: rgba(201,168,76,.3);
+    color: var(--gold2);
+  }
+  .step-label { font-size: 12px; color: rgba(255,255,255,.45); }
+  .step-pill.active .step-label { color: var(--gold2); font-weight: 500; }
+  .step-pill.done .step-label { color: rgba(255,255,255,.6); }
+
+  /* ── Main ── */
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .section-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: .02em;
+  }
+  label .req { color: var(--gold); margin-left: 2px; }
+
+  input, select, textarea {
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+    transition: border-color .15s, background .15s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(201,168,76,.1);
+  }
+  input.error, select.error { border-color: #e05252; }
+  textarea { resize: vertical; min-height: 56px; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b80' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  /* ── Action bar ── */
+  .action-bar {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .action-hint { font-size: 13px; color: var(--muted); }
+  .action-hint strong { color: var(--text); font-weight: 500; }
+  .btn-group { display: flex; gap: 10px; }
+
+  .btn {
+    padding: 10px 22px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--cream); color: var(--text); }
+  .btn-gold {
+    background: var(--navy);
+    color: var(--gold2);
+    border: 1px solid var(--navy2);
+  }
+  .btn-gold:hover { background: var(--navy2); }
+  .btn-gold:active { transform: scale(.98); }
+  .btn-gold:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 2rem; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--navy);
+    color: var(--white);
+    padding: .65rem 1.25rem;
+    border-radius: 100px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    pointer-events: none;
+    border: 1px solid rgba(201,168,76,.3);
+    white-space: nowrap;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Preview panel ── */
+  #preview-wrap {
+    display: none;
+    margin-top: 1.5rem;
+  }
+  #preview-wrap.visible { display: block; }
+  .preview-card {
+    background: var(--white);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 2rem;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'DM Serif Display', serif;
+    max-height: 460px;
+    overflow-y: auto;
+  }
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .preview-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--gold);
+  }
+
+  /* ── Download button ── */
+  .dl-card {
+    background: var(--navy);
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    margin-top: 1.25rem;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .dl-card.visible { display: flex; }
+  .dl-info { color: rgba(255,255,255,.7); font-size: 13px; }
+  .dl-info strong { display: block; color: var(--white); font-size: 15px; margin-bottom: 2px; }
+  .btn-dl {
+    padding: 10px 22px;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+  .btn-dl:hover { background: var(--gold2); }
+
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .field.full { grid-column: 1; }
+    .action-bar { flex-direction: column; align-items: stretch; }
+    .btn-group { justify-content: flex-end; }
+    .dl-card { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="badge">Legal Document</div>
+    <h1>아트봉봉 글로벌 <span>NDA Generator</span></h1>
+    <p>회사 정보를 입력하면 즉시 Non-Disclosure Agreement 문서를 생성합니다.</p>
+  </div>
+</header>
+
+<div class="steps-bar">
+  <div class="steps-inner">
+    <div class="step-pill active" id="sp1" onclick="scrollTo(0,0)">
+      <div class="step-num">1</div>
+      <span class="step-label">당사자 정보</span>
+    </div>
+    <div class="step-pill" id="sp2">
+      <div class="step-num">2</div>
+      <span class="step-label">계약 조건</span>
+    </div>
+    <div class="step-pill" id="sp3">
+      <div class="step-num">3</div>
+      <span class="step-label">문서 생성</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- Disclosing Party -->
+  <div class="section-card" id="card1">
+    <div class="section-header">
+      <div class="section-icon">📤</div>
+      <span class="section-title">Disclosing Party — 정보 제공자</span>
+    </div>
+    <div class="grid">
+      <div class="field full">
+        <label>Company Name</label>
+        <input id="d_name" value="i-Scream arts" readonly style="background:var(--cream2);color:var(--muted);cursor:default;" />
+      </div>
+      <div class="field full">
+        <label>Address</label>
+        <input id="d_addr" value="225-20 Pangyoyeok-ro, Bundang-gu, Seongnam-si, Gyeonggi-do, the Republic of Korea" readonly style="background:var(--cream2);color:var(--muted);cursor:default;" />
+      </div>
+      <div class="field">
+        <label>Representative Name</label>
+        <input id="d_rep" value="Kiseok Park" readonly style="background:var(--cream2);color:var(--muted);cursor:default;" />
+      </div>
+      <div class="field">
+        <label>Title</label>
+        <input id="d_title" value="President" readonly style="background:var(--cream2);color:var(--muted);cursor:default;" />
+      </div>
+      <div class="field">
+        <label>Jurisdiction (설립국)</label>
+        <input id="d_juris" value="Republic of Korea" readonly style="background:var(--cream2);color:var(--muted);cursor:default;" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="d_email" type="email" placeholder="e.g. legal@i-screamarts.com" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Receiving Party -->
+  <div class="section-card" id="card2">
+    <div class="section-header">
+      <div class="section-icon">📥</div>
+      <span class="section-title">Receiving Party — 정보 수령자</span>
+    </div>
+    <div class="grid">
+      <div class="field full">
+        <label>Company Name <span class="req">*</span></label>
+        <input id="r_name" placeholder="e.g. XYZ Inc." oninput="onInput()" />
+      </div>
+      <div class="field full">
+        <label>Address</label>
+        <input id="r_addr" placeholder="e.g. 456 Park Ave, New York, NY 10022, USA" />
+      </div>
+      <div class="field">
+        <label>Representative Name</label>
+        <input id="r_rep" placeholder="e.g. Jane Doe" />
+      </div>
+      <div class="field">
+        <label>Title</label>
+        <input id="r_title" placeholder="e.g. President" />
+      </div>
+      <div class="field">
+        <label>Jurisdiction (설립국)</label>
+        <input id="r_juris" placeholder="e.g. United States" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="r_email" type="email" placeholder="e.g. legal@xyz.com" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Contract Terms -->
+  <div class="section-card" id="card3">
+    <div class="section-header">
+      <div class="section-icon">⚖️</div>
+      <span class="section-title">계약 조건</span>
+    </div>
+    <div class="grid">
+      <div class="field full">
+        <label>Purpose of Disclosure <span class="req">*</span></label>
+        <textarea id="purpose" placeholder="e.g. Evaluation of a potential technology licensing agreement between the Parties" oninput="onInput()"></textarea>
+      </div>
+      <div class="field">
+        <label>Duration (유효기간)</label>
+        <input id="duration" placeholder="e.g. two (2) years" value="two (2) years" />
+      </div>
+      <div class="field">
+        <label>Governing Law (준거법)</label>
+        <select id="gov_law">
+          <option value="the Republic of Korea" selected>Republic of Korea</option>
+          <option value="the State of New York, USA">New York, USA</option>
+          <option value="England and Wales">England and Wales</option>
+          <option value="Singapore">Singapore</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Arbitration Body</label>
+        <select id="arb">
+          <option value="the Korean Commercial Arbitration Board (KCAB)" selected>KCAB (Korea)</option>
+          <option value="the International Chamber of Commerce (ICC)">ICC</option>
+          <option value="the American Arbitration Association (AAA)">AAA</option>
+          <option value="the Singapore International Arbitration Centre (SIAC)">SIAC</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Seat of Arbitration</label>
+        <input id="arb_seat" value="Seoul, Republic of Korea" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <div class="action-hint">입력 완료 후 <strong>문서 생성</strong> 클릭</div>
+    <div class="btn-group">
+      <button class="btn btn-ghost" onclick="resetForm()">초기화</button>
+      <button class="btn btn-gold" id="genBtn" onclick="generateNDA()" disabled>문서 생성 →</button>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div id="preview-wrap">
+    <div class="preview-header">
+      <span class="preview-label">📄 미리보기</span>
+      <button class="btn btn-ghost" onclick="document.getElementById('preview-wrap').classList.remove('visible')" style="padding:5px 12px;font-size:12px;">닫기</button>
+    </div>
+    <div class="preview-card" id="preview-content"></div>
+  </div>
+
+  <!-- Download -->
+  <div class="dl-card" id="dlCard">
+    <div class="dl-info">
+      <strong>NDA_<span id="dl-filename">Document</span>.docx</strong>
+      문서가 생성되었습니다. 다운로드 후 서명란을 작성하세요.
+    </div>
+    <button class="btn-dl" id="dlBtn">⬇ 다운로드</button>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<!-- docx via CDN -->
+<script>
+// Load docx library dynamically and initialize app
+(function loadDocx() {
+  const s = document.createElement('script');
+  s.src = 'https://unpkg.com/docx@8.5.0/build/index.umd.js';
+  s.onload = () => { window._docxReady = true; };
+  s.onerror = () => {
+    const s2 = document.createElement('script');
+    s2.src = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
+    s2.onload = () => { window._docxReady = true; };
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
+})();
+</script>
+<script>
+const BLUE="#1F3864", LBLUE="#DCE6F1", GRAY="#595959", LGRAY="#BFBFBF";
+
+function v(id){return document.getElementById(id).value.trim();}
+
+function onInput(){
+  const ok=v('r_name')&&v('purpose');
+  document.getElementById('genBtn').disabled=!ok;
+  document.getElementById('sp2').className='step-pill'+(ok?' done':'');
+}
+
+function resetForm(){
+  ['d_email','r_name','r_addr','r_rep','r_title','r_email','purpose'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('arb_seat').value='Seoul, Republic of Korea';
+  document.getElementById('duration').value='two (2) years';
+  document.getElementById('gov_law').value='the Republic of Korea';
+  document.getElementById('arb').value='the Korean Commercial Arbitration Board (KCAB)';
+  document.getElementById('genBtn').disabled=true;
+  document.getElementById('dlCard').classList.remove('visible');
+  document.getElementById('preview-wrap').classList.remove('visible');
+  document.getElementById('sp2').className='step-pill';
+  document.getElementById('sp3').className='step-pill';
+  toast('초기화되었습니다.');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+async function generateNDA(){
+  if(!window.docx){
+    toast('라이브러리 로딩 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+  const {
+    Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+    AlignmentType, BorderStyle, WidthType, ShadingType,
+    PageNumber, Header, Footer
+  } = window.docx;
+
+  const nb={top:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},bottom:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},left:{style:BorderStyle.NONE,size:0,color:"FFFFFF"},right:{style:BorderStyle.NONE,size:0,color:"FFFFFF"}};
+  const lb={...nb,bottom:{style:BorderStyle.SINGLE,size:4,color:LGRAY}};
+
+  function P(text,opts={}){return new Paragraph({spacing:{before:60,after:60},alignment:AlignmentType.JUSTIFIED,children:[new TextRun({text,size:20,font:"Arial",...opts})]});}
+  function SP(n=80){return new Paragraph({spacing:{before:n,after:0},children:[new TextRun({text:"",size:20})]});}
+  function H(text){return new Paragraph({spacing:{before:320,after:100},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:BLUE,space:3}},children:[new TextRun({text,bold:true,size:22,font:"Arial",color:BLUE})]});}
+  function CL(num,title,children){return[new Paragraph({spacing:{before:220,after:80},children:[new TextRun({text:`${num}.  ${title}`,bold:true,size:22,font:"Arial",color:BLUE})]}), ...children];}
+  function FR(label,val=""){
+    return new Table({width:{size:9360,type:WidthType.DXA},columnWidths:[2600,6760],rows:[new TableRow({height:{value:480,rule:"atLeast"},children:[
+      new TableCell({borders:nb,width:{size:2600,type:WidthType.DXA},margins:{top:60,bottom:0,left:0,right:120},children:[new Paragraph({children:[new TextRun({text:label,size:19,font:"Arial",color:GRAY,bold:true})]})]  }),
+      new TableCell({borders:lb,width:{size:6760,type:WidthType.DXA},margins:{top:60,bottom:0,left:120,right:0},children:[new Paragraph({children:[new TextRun({text:val,size:20,font:"Arial"})]})]}),
+    ]})]}); 
+  }
+  function buildSig(data){
+    function block(title,name,rep,ttl){
+      return[
+        new TableRow({children:[new TableCell({borders:nb,width:{size:4380,type:WidthType.DXA},shading:{fill:LBLUE,type:ShadingType.CLEAR},margins:{top:100,bottom:100,left:160,right:160},children:[new Paragraph({children:[new TextRun({text:title,bold:true,size:20,font:"Arial",color:BLUE})]})]})]  }),
+        ...[["Company Name:",name||""],["Authorized Signatory:",rep||""],["Title:",ttl||""],["Signature:",""],["Date:",""]].map(([lbl,val])=>
+          new TableRow({height:{value:480,rule:"atLeast"},children:[new TableCell({borders:{...nb,bottom:{style:BorderStyle.SINGLE,size:4,color:LGRAY}},width:{size:4380,type:WidthType.DXA},margins:{top:60,bottom:60,left:160,right:160},children:[new Paragraph({children:[new TextRun({text:lbl+" ",size:19,font:"Arial",color:GRAY}),new TextRun({text:val,size:19,font:"Arial",bold:!!val})]})]})]})
+        )
+      ];
+    }
+    return new Table({width:{size:9360,type:WidthType.DXA},columnWidths:[4380,600,4380],rows:[new TableRow({children:[
+      new TableCell({borders:nb,width:{size:4380,type:WidthType.DXA},children:[new Table({width:{size:4380,type:WidthType.DXA},columnWidths:[4380],rows:block("DISCLOSING PARTY",data.d_name,data.d_rep,data.d_title)})]}),
+      new TableCell({borders:nb,width:{size:600,type:WidthType.DXA},children:[SP()]}),
+      new TableCell({borders:nb,width:{size:4380,type:WidthType.DXA},children:[new Table({width:{size:4380,type:WidthType.DXA},columnWidths:[4380],rows:block("RECEIVING PARTY",data.r_name,data.r_rep,data.r_title)})]})
+    ]})]});
+  }
+
+  const data={
+    d_name:v('d_name'),d_addr:v('d_addr'),d_rep:v('d_rep'),d_title:v('d_title'),d_juris:v('d_juris'),d_email:v('d_email'),
+    r_name:v('r_name'),r_addr:v('r_addr'),r_rep:v('r_rep'),r_title:v('r_title'),r_juris:v('r_juris'),r_email:v('r_email'),
+    purpose:v('purpose'),
+    duration:v('duration')||'two (2) years',gov_law:v('gov_law'),arb:v('arb'),arb_seat:v('arb_seat')
+  };
+
+  const btn=document.getElementById('genBtn');
+  btn.textContent='생성 중...'; btn.disabled=true;
+
+  try {
+    const doc=new Document({
+      styles:{default:{document:{run:{font:"Arial",size:20}}}},
+      sections:[{
+        properties:{page:{size:{width:12240,height:15840},margin:{top:1080,right:1260,bottom:1080,left:1260}}},
+        headers:{default:new Header({children:[new Paragraph({alignment:AlignmentType.RIGHT,border:{bottom:{style:BorderStyle.SINGLE,size:4,color:BLUE,space:5}},children:[new TextRun({text:"NON-DISCLOSURE AGREEMENT",bold:true,size:18,font:"Arial",color:BLUE})]})]})}  ,
+        footers:{default:new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,border:{top:{style:BorderStyle.SINGLE,size:4,color:LGRAY,space:4}},children:[new TextRun({text:"Confidential  |  Page ",size:16,font:"Arial",color:GRAY}),new TextRun({children:[PageNumber.CURRENT],size:16,font:"Arial",color:GRAY}),new TextRun({text:" of ",size:16,font:"Arial",color:GRAY}),new TextRun({children:[PageNumber.TOTAL_PAGES],size:16,font:"Arial",color:GRAY})]})]})}  ,
+        children:[
+          new Paragraph({alignment:AlignmentType.CENTER,spacing:{before:280,after:60},children:[new TextRun({text:"NON-DISCLOSURE AGREEMENT",bold:true,size:48,font:"Arial",color:BLUE})]}),
+          new Paragraph({alignment:AlignmentType.CENTER,spacing:{before:0,after:320},children:[new TextRun({text:"CONFIDENTIAL",bold:true,size:20,font:"Arial",color:"C00000"})]}),
+
+          H("PARTIES"),
+          P(`This Non-Disclosure Agreement ("Agreement") is entered into as of the date last signed below (the "Effective Date") by and between:`),
+          SP(),
+          FR("Disclosing Party:",data.d_name+(data.d_juris?` (incorporated under the laws of ${data.d_juris})`:"") ),
+          SP(80), FR("Address:",data.d_addr), SP(80), FR("Representative:",data.d_rep+(data.d_title?`, ${data.d_title}`:"")), SP(80), FR("Email:",data.d_email),
+          SP(160), P('(hereinafter the "Disclosing Party")  AND'), SP(),
+          FR("Receiving Party:",data.r_name+(data.r_juris?` (incorporated under the laws of ${data.r_juris})`:"") ),
+          SP(80), FR("Address:",data.r_addr), SP(80), FR("Representative:",data.r_rep+(data.r_title?`, ${data.r_title}`:"")), SP(80), FR("Email:",data.r_email),
+          SP(160), P('(hereinafter the "Receiving Party", and together the "Parties")'),
+          SP(), FR("Purpose:",data.purpose), SP(80),
+
+          ...CL("1","Confidential Information",[
+            P('"Confidential Information" means any non-public information disclosed by the Disclosing Party, whether oral, written, or electronic, that is: (a) marked "Confidential" or "Proprietary" at the time of disclosure; (b) identified as confidential orally and confirmed in writing within 30 days; or (c) reasonably understood to be confidential given its nature or context. Confidential Information includes, without limitation, trade secrets, technical data, know-how, business plans, financial data, customer lists, software, and processes.'),
+            SP(60),
+            P("Confidential Information does NOT include information that: (a) is or becomes public through no fault of the Receiving Party; (b) was already known to the Receiving Party without restriction; (c) is received from a third party without restriction; (d) is independently developed without reference to the Confidential Information; or (e) must be disclosed by law or court order, provided prompt notice is given to the Disclosing Party."),
+          ]),
+          ...CL("2","Obligations of the Receiving Party",[
+            P("The Receiving Party shall: (a) hold all Confidential Information in strict confidence using at least the same care as it uses for its own confidential information (no less than reasonable care); (b) use Confidential Information solely for the Purpose stated above; (c) not disclose Confidential Information to any third party without prior written consent; (d) limit internal disclosure to personnel with a strict need to know who are bound by equivalent confidentiality obligations; and (e) promptly notify the Disclosing Party of any unauthorized use or disclosure."),
+          ]),
+          ...CL("3","Term and Duration",[
+            P(`This Agreement is effective from the Effective Date and continues for ${data.duration}. Obligations regarding trade secrets survive indefinitely. Either Party may terminate this Agreement on 30 days' written notice; confidentiality obligations for information disclosed prior to termination shall survive for the period above.`),
+          ]),
+          ...CL("4","Intellectual Property Rights",[
+            P("Nothing in this Agreement grants the Receiving Party any rights, by license, implication, or otherwise, in or to any Confidential Information or intellectual property of the Disclosing Party. All Confidential Information remains the exclusive property of the Disclosing Party."),
+          ]),
+          ...CL("5","Return or Destruction",[
+            P("Upon expiration, termination, or written request, the Receiving Party shall promptly return or destroy all materials containing Confidential Information and, if requested, certify such destruction in writing. One copy may be retained in secure legal files for record-keeping purposes only."),
+          ]),
+          ...CL("6","Governing Law & Dispute Resolution",[
+            P(`This Agreement shall be governed by the laws of ${data.gov_law}. Disputes not resolved amicably within 30 days shall be settled by binding arbitration under ${data.arb}, with the seat of arbitration in ${data.arb_seat}. The arbitral award shall be final and binding.`),
+          ]),
+          ...CL("7","General Provisions",[
+            P("(a) Entire Agreement. This Agreement supersedes all prior discussions on this subject. (b) Amendment. Amendments require a signed writing by both Parties. (c) Remedies. Breach may cause irreparable harm; the Disclosing Party is entitled to seek injunctive or equitable relief without posting bond. (d) Severability. Invalid provisions shall be severed without affecting the remainder. (e) Counterparts. Electronic/PDF signatures are valid and binding."),
+          ]),
+
+          new Paragraph({pageBreakBefore:true,children:[]}),
+          new Paragraph({alignment:AlignmentType.CENTER,spacing:{before:0,after:120},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:BLUE,space:3}},children:[new TextRun({text:"SIGNATURES",bold:true,size:22,font:"Arial",color:BLUE})]}),
+          P("IN WITNESS WHEREOF, the authorized representatives of the Parties have executed this Agreement as of the date last written below."),
+          SP(120),
+          buildSig(data),
+          SP(200),
+          new Paragraph({alignment:AlignmentType.CENTER,border:{top:{style:BorderStyle.SINGLE,size:4,color:LBLUE,space:5}},children:[new TextRun({text:"This document is strictly confidential. Unauthorized disclosure is prohibited.",size:16,font:"Arial",color:GRAY,italics:true})]})
+        ]
+      }]
+    });
+
+    const blob=await Packer.toBlob(doc);
+    const url=URL.createObjectURL(blob);
+    const fname=`NDA_${data.d_name.replace(/[^a-zA-Z0-9가-힣]/g,'_')}_${data.r_name.replace(/[^a-zA-Z0-9가-힣]/g,'_')}`;
+
+    document.getElementById('dl-filename').textContent=fname;
+    const dlCard=document.getElementById('dlCard');
+    dlCard.classList.add('visible');
+    document.getElementById('dlBtn').onclick=()=>{
+      const a=document.createElement('a'); a.href=url; a.download=fname+'.docx'; a.click();
+    };
+
+    document.getElementById('preview-content').textContent=
+`NON-DISCLOSURE AGREEMENT
+
+PARTIES
+
+Disclosing Party: ${data.d_name}${data.d_juris?' ('+data.d_juris+')':''}
+Address: ${data.d_addr||'—'}
+Representative: ${data.d_rep||'—'}${data.d_title?', '+data.d_title:''}
+Email: ${data.d_email||'—'}
+
+Receiving Party: ${data.r_name}${data.r_juris?' ('+data.r_juris+')':''}
+Address: ${data.r_addr||'—'}
+Representative: ${data.r_rep||'—'}${data.r_title?', '+data.r_title:''}
+Email: ${data.r_email||'—'}
+
+Purpose: ${data.purpose}
+
+Duration: ${data.duration}
+Governing Law: ${data.gov_law}
+Arbitration: ${data.arb} — ${data.arb_seat}
+
+[Clauses 1–7 included in full document]
+
+───────────────────────────────
+SIGNATURES
+Disclosing Party: ${data.d_name}
+Receiving Party:  ${data.r_name}`;
+    document.getElementById('preview-wrap').classList.add('visible');
+
+    document.getElementById('sp3').className='step-pill active';
+    toast('✓ 문서가 생성되었습니다!');
+    dlCard.scrollIntoView({behavior:'smooth',block:'nearest'});
+  } catch(e){
+    toast('오류가 발생했습니다: '+e.message);
+    console.error(e);
+  }
+
+  btn.textContent='문서 생성 →'; btn.disabled=false;
+}
+</script>
+</body>
+</html>

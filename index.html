@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ART BONBON - Contract Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f1f3d;
+  --navy2:#1a3060;
+  --gold:#c9a84c;
+  --gold2:#e8c97a;
+  --cream:#f7f4ee;
+  --cream2:#ede9e0;
+  --text:#1a1a2e;
+  --muted:#6b6b80;
+  --border:#d4cebc;
+}
+body{
+  background:var(--cream);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+header{
+  background:var(--navy);
+  padding:2.5rem 2rem 2rem;
+  position:relative;
+  overflow:hidden;
+  text-align:center;
+}
+header::before{
+  content:'';
+  position:absolute;
+  top:-60px;right:-60px;
+  width:260px;height:260px;
+  border-radius:50%;
+  border:40px solid rgba(201,168,76,.12);
+  pointer-events:none;
+}
+header::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+}
+.header-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(201,168,76,.15);
+  border:1px solid rgba(201,168,76,.3);
+  border-radius:20px;
+  padding:5px 14px;
+  font-size:11px;
+  font-weight:500;
+  color:var(--gold2);
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  margin-bottom:1.2rem;
+}
+header h1{
+  font-family:'DM Serif Display',serif;
+  font-size:2.2rem;
+  color:#fff;
+  line-height:1.2;
+  margin-bottom:.6rem;
+}
+header h1 span{color:var(--gold2)}
+header p{
+  color:rgba(255,255,255,.65);
+  font-size:.9rem;
+  max-width:420px;
+  margin:0 auto;
+}
+main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:3rem 1.5rem 4rem;
+}
+.section-label{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:1.75rem;
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+  width:100%;
+  max-width:760px;
+}
+@media(max-width:640px){.cards{grid-template-columns:1fr}}
+.card{
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:16px;
+  padding:2rem 1.5rem 1.75rem;
+  cursor:pointer;
+  transition:all .22s;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  gap:.75rem;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  opacity:0;
+  transition:opacity .22s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 32px rgba(15,31,61,.12);
+}
+.card:hover::before{opacity:1}
+.card-nda::before{background:linear-gradient(90deg,#c9a84c,#e8c97a)}
+.card-nda:hover{border-color:#c9a84c}
+.card-license::before{background:linear-gradient(90deg,#1A5276,#2980b9)}
+.card-license:hover{border-color:#1A5276}
+.card-reseller::before{background:linear-gradient(90deg,#145A32,#27ae60)}
+.card-reseller:hover{border-color:#145A32}
+.card-icon{
+  width:48px;height:48px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  flex-shrink:0;
+}
+.icon-nda{background:rgba(201,168,76,.12)}
+.icon-license{background:rgba(26,82,118,.1)}
+.icon-reseller{background:rgba(20,90,50,.1)}
+.card-body{flex:1}
+.card-title{
+  font-size:16px;
+  font-weight:500;
+  color:var(--navy);
+  margin-bottom:.35rem;
+}
+.card-desc{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.55;
+}
+.card-arrow{
+  font-size:18px;
+  color:var(--border);
+  transition:color .2s, transform .2s;
+  align-self:flex-end;
+}
+.card:hover .card-arrow{transform:translateX(4px)}
+.card-nda:hover .card-arrow{color:var(--gold)}
+.card-license:hover .card-arrow{color:#1A5276}
+.card-reseller:hover .card-arrow{color:#145A32}
+footer{
+  text-align:center;
+  padding:1.5rem;
+  font-size:12px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-badge">&#9733; i-Scream arts</div>
+  <h1>ART BONBON<br><span>Contract Generator</span></h1>
+  <p>Select the type of agreement to generate</p>
+</header>
+<main>
+  <div class="section-label">Choose a contract type</div>
+  <div class="cards">
+    <a class="card card-nda" href="nda.html">
+      <div class="card-icon icon-nda">&#128274;</div>
+      <div class="card-body">
+        <div class="card-title">NDA</div>
+        <div class="card-desc">Non-Disclosure Agreement for confidential business discussions</div>
+      </div>
+      <div class="card-arrow">&#8594;</div>
+    </a>
+    <a class="card card-license" href="Licenses.html">
+      <div class="card-icon icon-license">&#128196;</div>
+      <div class="card-body">
+        <div class="card-title">Licenses</div>
+        <div class="card-desc">Software License Sales Agreement for direct customers</div>
+      </div>
+      <div class="card-arrow">&#8594;</div>
+    </a>
+    <a class="card card-reseller" href="reseller.html">
+      <div class="card-icon icon-reseller">&#129309;</div>
+      <div class="card-body">
+        <div class="card-title">Reseller</div>
+        <div class="card-desc">Partnership &amp; Distribution Agreement for reseller partners</div>
+      </div>
+      <div class="card-arrow">&#8594;</div>
+    </a>
+  </div>
+</main>
+<footer>i-Scream arts Co., Ltd. &nbsp;&middot;&nbsp; 225-20 Pangyoyeok-ro, Bundang-gu, Seongnam-si, Gyeonggi-do, Republic of Korea</footer>
+</body>
+</html>
