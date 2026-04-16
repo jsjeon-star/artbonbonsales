@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ART BONBON Contract Generator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F0F4F8;color:#1C2833;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid #E0E7EF;padding:0 2rem;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.topbar-logo{background:#1A5276;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;letter-spacing:.6px}
+.topbar-title{font-size:14px;color:#555;flex:1}
+.topbar-badge{font-size:11px;color:#1A5276;background:#D6EAF8;padding:3px 10px;border-radius:20px;font-weight:500}
+.container{max-width:820px;margin:2rem auto;padding:0 1.5rem 4rem}
+.page-heading{margin-bottom:1.75rem}
+.page-heading h1{font-size:22px;font-weight:600;color:#1A5276;margin-bottom:4px}
+.page-heading p{font-size:13px;color:#666}
+.card{background:#fff;border:1px solid #E0E7EF;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-size:11px;font-weight:600;color:#1A5276;text-transform:uppercase;letter-spacing:.7px;margin-bottom:1.1rem;padding-bottom:.6rem;border-bottom:2px solid #1A5276}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-full{grid-column:1/-1}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:12px;font-weight:500;color:#444}
+.req{color:#c0392b;margin-left:2px}
+.field-note{font-size:11px;color:#888;margin-top:2px}
+input,select,textarea{width:100%;padding:8px 11px;font-size:13px;border:1px solid #D0DAE6;border-radius:8px;background:#fff;color:#1C2833;font-family:inherit;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1A5276;box-shadow:0 0 0 3px rgba(26,82,118,.1)}
+textarea{resize:vertical;min-height:64px}
+.order-wrap{overflow-x:auto}
+.order-table{width:100%;border-collapse:collapse;font-size:13px;min-width:620px}
+.order-table th{background:#1A5276;color:#fff;padding:8px 10px;font-weight:500;font-size:12px;text-align:left}
+.order-table td{padding:0;border:1px solid #E0E7EF}
+.order-table td input{border:none;border-radius:0;padding:8px 10px;font-size:13px;background:transparent;box-shadow:none;width:100%}
+.order-table td input:focus{background:#F0F8FF;outline:none}
+.total-cell input{background:#EBF5FB !important;color:#1A5276 !important;font-weight:600 !important;cursor:default !important}
+.order-table tfoot td{background:#EBF5FB;font-weight:600;padding:8px 10px;font-size:13px;color:#1A5276;border:1px solid #D6EAF8}
+.add-row-btn{font-size:12px;color:#1A5276;background:none;border:1px dashed #A9CCE3;border-radius:6px;cursor:pointer;padding:6px 14px;margin-top:10px;font-family:inherit}
+.add-row-btn:hover{background:#EBF5FB}
+.divider{height:1px;background:#EDF2F7;margin:1.25rem 0}
+.actions{display:flex;align-items:center;gap:12px;justify-content:flex-end;margin-top:2rem;padding-top:1.25rem;border-top:1px solid #E0E7EF}
+.status-msg{flex:1;font-size:12px;color:#888;display:flex;align-items:center;gap:8px}
+.spinner{width:15px;height:15px;border:2px solid #D0DAE6;border-top-color:#1A5276;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn{padding:9px 20px;font-size:13px;font-family:inherit;border-radius:8px;cursor:pointer;font-weight:500;transition:all .15s}
+.btn-ghost{background:#fff;border:1px solid #D0DAE6;color:#444}
+.btn-ghost:hover{background:#F7F9FB}
+.btn-primary{background:#1A5276;border:none;color:#fff}
+.btn-primary:hover{background:#154360}
+.btn-primary:disabled{background:#999;cursor:not-allowed}
+.toast{background:#EAF7EE;border:1px solid #82C99A;border-radius:8px;padding:12px 16px;font-size:13px;color:#1D6A35;display:none;align-items:center;gap:10px;margin-top:1rem}
+.toast.show{display:flex}
+.err{color:#c0392b;font-size:12px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-logo">i-Scream arts</span>
+  <span class="topbar-title">ART BONBON &mdash; Software License Sales Agreement Generator</span>
+  <span class="topbar-badge">Contract Automation</span>
+</div>
+<div class="container">
+  <div class="page-heading">
+    <h1>Generate Sales Agreement</h1>
+    <p>Fill in the information below and click Generate to download a ready-to-sign .docx contract.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Effective Date</div>
+    <div style="max-width:220px">
+      <div class="field-group">
+        <label class="field-label">Effective Date <span class="req">*</span></label>
+        <input type="date" id="effectiveDate">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Customer / Licensee</div>
+    <div class="field-grid">
+      <div class="field-group">
+        <label class="field-label">Company Name <span class="req">*</span></label>
+        <input type="text" id="custCompany" placeholder="e.g., ABC Corporation">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Representative Name <span class="req">*</span></label>
+        <input type="text" id="custRep" placeholder="e.g., John Smith">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Title</label>
+        <input type="text" id="custTitle" placeholder="e.g., CEO">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Contact Email <span class="req">*</span></label>
+        <input type="email" id="custEmail" placeholder="e.g., john@company.com">
+      </div>
+      <div class="field-group field-full">
+        <label class="field-label">Address <span class="req">*</span></label>
+        <input type="text" id="custAddress" placeholder="e.g., 123 Main St, New York, NY 10001, USA">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Order Details</div>
+    <div class="order-wrap">
+      <table class="order-table">
+        <thead>
+          <tr>
+            <th style="width:38px">No.</th>
+            <th style="width:27%">Product / Module</th>
+            <th>License Type</th>
+            <th style="width:72px">Seats</th>
+            <th style="width:108px">Unit Price</th>
+            <th style="width:58px">Qty</th>
+            <th style="width:108px">Total</th>
+          </tr>
+        </thead>
+        <tbody id="orderBody">
+          <tr>
+            <td style="text-align:center;padding:8px 0;color:#888">1</td>
+            <td><input type="text" value="ART BONBON" readonly style="color:#1A5276;font-weight:600"></td>
+            <td><input type="text" id="r1_type" placeholder="e.g., Annual Subscription"></td>
+            <td><input type="number" id="r1_seats" placeholder="--" min="1"></td>
+            <td><input type="number" id="r1_price" placeholder="0.00" min="0" step="0.01"></td>
+            <td><input type="number" id="r1_qty" value="1" min="1"></td>
+            <td class="total-cell"><input type="text" id="r1_total" readonly placeholder="0.00"></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="6" style="text-align:right">Total Amount</td>
+            <td id="grandTotal">--</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <button class="add-row-btn" id="addRowBtn">+ Add row</button>
+    <div class="divider"></div>
+    <div class="field-grid">
+      <div class="field-group">
+        <label class="field-label">Currency <span class="req">*</span></label>
+        <select id="currency">
+          <option value="USD">USD - US Dollar</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="KRW">KRW - Korean Won</option>
+          <option value="JPY">JPY - Japanese Yen</option>
+          <option value="GBP">GBP - British Pound</option>
+          <option value="CNY">CNY - Chinese Yuan</option>
+          <option value="SGD">SGD - Singapore Dollar</option>
+          <option value="AUD">AUD - Australian Dollar</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Payment Terms</label>
+        <input type="text" id="paymentTerms" placeholder="e.g., 100% upfront / Net 30 days">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Payment Method</label>
+        <input type="text" id="paymentMethod" placeholder="e.g., Wire Transfer / Credit Card">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Delivery Date</label>
+        <input type="text" id="deliveryDate" placeholder="e.g., Within 5 business days">
+      </div>
+      <div class="field-group">
+        <label class="field-label">License Start Date</label>
+        <input type="date" id="licenseStart">
+      </div>
+      <div class="field-group">
+        <label class="field-label">License End Date</label>
+        <input type="date" id="licenseEnd">
+      </div>
+      <div class="field-group field-full">
+        <label class="field-label">Special Terms</label>
+        <textarea id="specialTerms" placeholder="Any additional terms or conditions..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Governing Law &amp; Jurisdiction</div>
+    <div class="field-grid">
+      <div class="field-group">
+        <label class="field-label">Governing Law</label>
+        <input type="text" id="govLaw" value="Republic of Korea">
+        <span class="field-note">i-Scream arts default</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Jurisdiction</label>
+        <input type="text" id="jurisdiction" value="Seoul, Republic of Korea">
+        <span class="field-note">i-Scream arts default</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Exhibit A &mdash; Software Specification</div>
+    <div class="field-grid">
+      <div class="field-group">
+        <label class="field-label">Version</label>
+        <input type="text" id="swVersion" value="ART BONBON School Global">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Platform / Compatibility</label>
+        <input type="text" id="swPlatform" value="Web, App (iOS &amp; Android)">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Language Support</label>
+        <input type="text" id="swLang" value="English, Korean, Japanese">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Support Contact</label>
+        <input type="text" id="swSupport" value="support@i-screamarts.com">
+      </div>
+      <div class="field-group field-full">
+        <label class="field-label">Documentation URL</label>
+        <input type="text" id="swDoc" value="https://school.art-bonbon.com/en">
+      </div>
+      <div class="field-group field-full">
+        <label class="field-label">Key Features</label>
+        <textarea id="swFeatures" placeholder="e.g., AI-assisted art creation, curriculum tools, content library"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <div class="status-msg">
+      <div class="spinner" id="spinner"></div>
+      <span id="statusMsg"></span>
+    </div>
+    <button class="btn btn-ghost" id="resetBtn">Reset</button>
+    <button class="btn btn-primary" id="genBtn">Generate .docx</button>
+  </div>
+  <div class="toast" id="toast"><span>&#10003;</span><span id="toastMsg"></span></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+(function() {
+  "use strict";
+
+  var rowCount = 1;
+
+  function gv(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+  }
+
+  function calcRow(n) {
+    var priceEl = document.getElementById("r" + n + "_price");
+    var qtyEl   = document.getElementById("r" + n + "_qty");
+    var totalEl = document.getElementById("r" + n + "_total");
+    if (!priceEl || !qtyEl || !totalEl) return;
+    var price = parseFloat(priceEl.value) || 0;
+    var qty   = parseFloat(qtyEl.value)   || 1;
+    var total = price * qty;
+    totalEl.value = total > 0 ? total.toFixed(2) : "";
+    updateGrandTotal();
+  }
+
+  function updateGrandTotal() {
+    var total = 0;
+    for (var i = 1; i <= rowCount; i++) {
+      var el = document.getElementById("r" + i + "_total");
+      if (el) total += parseFloat(el.value) || 0;
+    }
+    document.getElementById("grandTotal").textContent = total > 0 ? total.toFixed(2) : "--";
+  }
+
+  function attachRowEvents(n) {
+    var price = document.getElementById("r" + n + "_price");
+    var qty   = document.getElementById("r" + n + "_qty");
+    if (price) price.addEventListener("input", function() { calcRow(n); });
+    if (qty)   qty.addEventListener("input",   function() { calcRow(n); });
+  }
+
+  attachRowEvents(1);
+
+  document.getElementById("addRowBtn").addEventListener("click", function() {
+    rowCount++;
+    var n = rowCount;
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td style="text-align:center;padding:8px 0;color:#888">' + n + '</td>' +
+      '<td><input type="text" id="r' + n + '_product" placeholder="Product / module name"></td>' +
+      '<td><input type="text" id="r' + n + '_type" placeholder="e.g., Annual Subscription"></td>' +
+      '<td><input type="number" id="r' + n + '_seats" placeholder="--" min="1"></td>' +
+      '<td><input type="number" id="r' + n + '_price" placeholder="0.00" min="0" step="0.01"></td>' +
+      '<td><input type="number" id="r' + n + '_qty" value="1" min="1"></td>' +
+      '<td class="total-cell"><input type="text" id="r' + n + '_total" readonly placeholder="0.00"></td>';
+    document.getElementById("orderBody").appendChild(tr);
+    attachRowEvents(n);
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function() {
+    var fields = ["effectiveDate","custCompany","custRep","custTitle","custEmail","custAddress",
+      "r1_type","r1_seats","r1_price","r1_total","paymentTerms","paymentMethod",
+      "deliveryDate","licenseStart","licenseEnd","specialTerms","swFeatures"];
+    fields.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    document.getElementById("r1_qty").value = "1";
+    document.getElementById("govLaw").value = "Republic of Korea";
+    document.getElementById("jurisdiction").value = "Seoul, Republic of Korea";
+    document.getElementById("swVersion").value = "ART BONBON School Global";
+    document.getElementById("swPlatform").value = "Web, App (iOS & Android)";
+    document.getElementById("swLang").value = "English, Korean, Japanese";
+    document.getElementById("swSupport").value = "support@i-screamarts.com";
+    document.getElementById("swDoc").value = "https://school.art-bonbon.com/en";
+    document.getElementById("grandTotal").textContent = "--";
+    document.getElementById("statusMsg").textContent = "";
+    document.getElementById("toast").classList.remove("show");
+    rowCount = 1;
+    document.getElementById("orderBody").innerHTML =
+      '<tr>' +
+      '<td style="text-align:center;padding:8px 0;color:#888">1</td>' +
+      '<td><input type="text" value="ART BONBON" readonly style="color:#1A5276;font-weight:600"></td>' +
+      '<td><input type="text" id="r1_type" placeholder="e.g., Annual Subscription"></td>' +
+      '<td><input type="number" id="r1_seats" placeholder="--" min="1"></td>' +
+      '<td><input type="number" id="r1_price" placeholder="0.00" min="0" step="0.01"></td>' +
+      '<td><input type="number" id="r1_qty" value="1" min="1"></td>' +
+      '<td class="total-cell"><input type="text" id="r1_total" readonly placeholder="0.00"></td>' +
+      '</tr>';
+    attachRowEvents(1);
+  });
+
+  document.getElementById("genBtn").addEventListener("click", function() {
+    var required = [
+      ["effectiveDate", "Effective Date"],
+      ["custCompany",   "Customer Company Name"],
+      ["custRep",       "Customer Representative"],
+      ["custEmail",     "Customer Email"],
+      ["custAddress",   "Customer Address"]
+    ];
+    for (var i = 0; i < required.length; i++) {
+      if (!gv(required[i][0])) {
+        document.getElementById("statusMsg").textContent = required[i][1] + " is required.";
+        document.getElementById("statusMsg").className = "err";
+        document.getElementById(required[i][0]).focus();
+        return;
+      }
+    }
+    document.getElementById("statusMsg").className = "";
+    document.getElementById("statusMsg").textContent = "Generating...";
+    document.getElementById("spinner").style.display = "block";
+    document.getElementById("genBtn").disabled = true;
+
+    function tryBuild() {
+      if (typeof docx === "undefined") {
+        setTimeout(tryBuild, 100);
+        return;
+      }
+      try {
+        buildDoc();
+      } catch(e) {
+        document.getElementById("spinner").style.display = "none";
+        document.getElementById("genBtn").disabled = false;
+        document.getElementById("statusMsg").textContent = "Error: " + e.message;
+        document.getElementById("statusMsg").className = "err";
+        console.error(e);
+      }
+    }
+    setTimeout(tryBuild, 50);
+  });
+
+  function gatherRows() {
+    var rows = [];
+    for (var i = 1; i <= rowCount; i++) {
+      var product = i === 1 ? "ART BONBON" : gv("r" + i + "_product");
+      var type    = gv("r" + i + "_type");
+      var seats   = gv("r" + i + "_seats");
+      var price   = gv("r" + i + "_price");
+      var qty     = gv("r" + i + "_qty") || "1";
+      var total   = gv("r" + i + "_total");
+      if (product || price) rows.push({ n: i, product: product, type: type, seats: seats, price: price, qty: qty, total: total });
+    }
+    return rows;
+  }
+
+  function buildDoc() {
+    var D = docx;
+    var BS = D.BorderStyle;
+    var WT = D.WidthType;
+    var AT = D.AlignmentType;
+    var ST = D.ShadingType;
+
+    var BLUE  = "1A5276";
+    var LBLUE = "D6EAF8";
+    var DARK  = "1C2833";
+    var GRAY  = "F4F6F7";
+    var cur   = gv("currency") || "USD";
+
+    var bdr  = { style: BS.SINGLE, size: 1, color: "CCCCCC" };
+    var BORD = { top: bdr, bottom: bdr, left: bdr, right: bdr };
+    var hbdr = { style: BS.SINGLE, size: 8, color: "1A5276" };
+    var HBRD = { top: hbdr, bottom: hbdr, left: hbdr, right: hbdr };
+    var nb   = { style: BS.NONE, size: 0, color: "FFFFFF" };
+    var NB   = { top: nb, bottom: nb, left: nb, right: nb };
+    var ubl  = { top: nb, bottom: { style: BS.SINGLE, size: 1, color: "AAAAAA" }, left: nb, right: nb };
+
+    function run(text, opts) {
+      opts = opts || {};
+      return new D.TextRun({ text: text, font: "Arial", size: opts.size || 20, color: opts.color || DARK, bold: opts.bold || false, italics: opts.italic || false });
+    }
+
+    function para(text, opts) {
+      opts = opts || {};
+      return new D.Paragraph({
+        spacing: { before: opts.before || 60, after: opts.after || 80 },
+        alignment: opts.align || AT.LEFT,
+        children: [run(text, opts)]
+      });
+    }
+
+    function heading(text) {
+      return new D.Paragraph({
+        spacing: { before: 360, after: 120 },
+        border: { bottom: { style: BS.SINGLE, size: 6, color: BLUE, space: 4 } },
+        children: [run(text, { bold: true, size: 28, color: BLUE })]
+      });
+    }
+
+    function blank() {
+      return new D.Paragraph({ spacing: { before: 60, after: 60 }, children: [new D.TextRun("")] });
+    }
+
+    function clause(num, title, content) {
+      return [
+        new D.Paragraph({
+          spacing: { before: 220, after: 80 },
+          children: [run(num + ".  " + title, { bold: true, size: 22, color: BLUE })]
+        }),
+        new D.Paragraph({
+          spacing: { before: 60, after: 100 },
+          indent: { left: 360 },
+          children: [run(content)]
+        })
+      ];
+    }
+
+    function frow(label, value) {
+      value = value || "[*]";
+      return new D.TableRow({ children: [
+        new D.TableCell({ borders: NB, width: { size: 2800, type: WT.DXA }, shading: { fill: GRAY, type: ST.CLEAR }, margins: { top: 80, bottom: 80, left: 120, right: 120 }, children: [para(label, { bold: true, color: BLUE })] }),
+        new D.TableCell({ borders: ubl, width: { size: 6226, type: WT.DXA }, margins: { top: 80, bottom: 80, left: 120, right: 120 }, children: [para(value, { color: DARK })] })
+      ]});
+    }
+
+    function sigBlock(p1, p2) {
+      var fields = ["Signature:", "Name:", "Title:", "Date:"];
+      var rows = [new D.TableRow({ children: [
+        new D.TableCell({ borders: HBRD, shading: { fill: BLUE, type: ST.CLEAR }, width: { size: 4380, type: WT.DXA }, margins: { top: 100, bottom: 100, left: 160, right: 160 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(p1, { bold: true, size: 20, color: "FFFFFF" })] })] }),
+        new D.TableCell({ borders: NB, width: { size: 266, type: WT.DXA }, children: [new D.Paragraph({ children: [new D.TextRun("")] })] }),
+        new D.TableCell({ borders: HBRD, shading: { fill: BLUE, type: ST.CLEAR }, width: { size: 4380, type: WT.DXA }, margins: { top: 100, bottom: 100, left: 160, right: 160 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(p2, { bold: true, size: 20, color: "FFFFFF" })] })] })
+      ]})];
+      fields.forEach(function(f) {
+        rows.push(new D.TableRow({ children: [
+          new D.TableCell({ borders: BORD, width: { size: 4380, type: WT.DXA }, margins: { top: 120, bottom: 120, left: 160, right: 160 }, children: [new D.Paragraph({ children: [run(f + "  ", { bold: true, size: 20 }), run("___________________________", { color: "BBBBBB" })] })] }),
+          new D.TableCell({ borders: NB, width: { size: 266, type: WT.DXA }, children: [new D.Paragraph({ children: [new D.TextRun("")] })] }),
+          new D.TableCell({ borders: BORD, width: { size: 4380, type: WT.DXA }, margins: { top: 120, bottom: 120, left: 160, right: 160 }, children: [new D.Paragraph({ children: [run(f + "  ", { bold: true, size: 20 }), run("___________________________", { color: "BBBBBB" })] })] })
+        ]}));
+      });
+      return new D.Table({ width: { size: 9026, type: WT.DXA }, columnWidths: [4380, 266, 4380], rows: rows });
+    }
+
+    var rows = gatherRows();
+    var ws = [400, 2626, 1500, 1000, 1500, 1000, 1000];
+    var orderRows = rows.map(function(r, idx) {
+      var priceTxt = r.price ? cur + " " + parseFloat(r.price).toFixed(2) : "--";
+      var totalTxt = r.total ? cur + " " + parseFloat(r.total).toFixed(2) : "--";
+      return new D.TableRow({ children: [
+        new D.TableCell({ borders: BORD, width: { size: ws[0], type: WT.DXA }, margins: { top: 120, bottom: 120, left: 80, right: 80 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(String(idx + 1))] })] }),
+        new D.TableCell({ borders: BORD, width: { size: ws[1], type: WT.DXA }, margins: { top: 120, bottom: 120, left: 80, right: 80 }, children: [new D.Paragraph({ children: [run(r.product, { bold: true, color: BLUE })] })] }),
+        new D.TableCell({ borders: BORD, width: { size: ws[2], type: WT.DXA }, margins: { top: 120, bottom: 120, left: 80, right: 80 }, children: [new D.Paragraph({ children: [run(r.type || "--")] })] }),
+        new D.TableCell({ borders: BORD, width: { size: ws[3], type: WT.DXA }, margins: { top: 120, bottom: 120, left: 80, right: 80 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(r.seats || "--")] })] }),
+        new D.TableCell({ borders: BORD, width: { size: ws[4], type: WT.DXA }, margins: { top: 120, bottom: 120, left: 80, right: 80 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(priceTxt)] })] }),
+        new D.TableCell({ borders: BORD, width: { size: ws[5], type: WT.DXA }, margins: { top: 120, bottom: 120, left: 80, right: 80 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(r.qty)] })] }),
+        new D.TableCell({ borders: BORD, width: { size: ws[6], type: WT.DXA }, margins: { top: 120, bottom: 120, left: 80, right: 80 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(totalTxt, { bold: true, color: BLUE })] })] })
+      ]});
+    });
+
+    var grandTotalEl = document.getElementById("grandTotal");
+    var grandTotalTxt = grandTotalEl.textContent !== "--" ? cur + " " + grandTotalEl.textContent : "--";
+    var govLaw    = gv("govLaw")     || "Republic of Korea";
+    var juris     = gv("jurisdiction") || "Seoul, Republic of Korea";
+    var licStart  = gv("licenseStart") || "[*]";
+    var licEnd    = gv("licenseEnd")   || "N/A (Perpetual)";
+    var supportEm = gv("swSupport")   || "support@i-screamarts.com";
+
+    var headerPara = new D.Paragraph({
+      border: { bottom: { style: BS.SINGLE, size: 6, color: BLUE, space: 4 } },
+      spacing: { after: 100 },
+      children: [
+        run("i-Scream arts Co., Ltd.", { bold: true, size: 22, color: BLUE }),
+        run("   |   SOFTWARE LICENSE & SALES AGREEMENT  -  ART BONBON", { size: 20, color: "777777" })
+      ]
+    });
+
+    var footerPara = new D.Paragraph({
+      border: { top: { style: BS.SINGLE, size: 4, color: BLUE, space: 4 } },
+      spacing: { before: 80 },
+      alignment: AT.CENTER,
+      children: [run("Confidential  -  i-Scream arts Co., Ltd.", { size: 18, color: "888888", italic: true })]
+    });
+
+    var children = [
+      new D.Paragraph({ spacing: { before: 480, after: 40 }, alignment: AT.CENTER, children: [run("SOFTWARE LICENSE", { bold: true, size: 60, color: BLUE })] }),
+      new D.Paragraph({ spacing: { before: 0, after: 40 }, alignment: AT.CENTER, children: [run("SALES AGREEMENT", { bold: true, size: 60, color: BLUE })] }),
+      new D.Paragraph({ spacing: { before: 20, after: 60 }, alignment: AT.CENTER, children: [new D.TextRun({ text: "ART BONBON", bold: true, size: 36, color: "FFFFFF", font: "Arial", shading: { type: ST.CLEAR, fill: BLUE } })] }),
+      new D.Paragraph({ spacing: { before: 0, after: 200 }, alignment: AT.CENTER, children: [run("i-Scream arts Co., Ltd.  -  Software Division", { size: 20, color: "999999", italic: true })] }),
+      new D.Table({ width: { size: 9026, type: WT.DXA }, columnWidths: [2800, 6226], rows: [frow("Effective Date:", gv("effectiveDate"))] }),
+      blank(),
+      heading("PARTIES"),
+      para('This Software License Sales Agreement ("Agreement") is entered into as of the Effective Date stated above, by and between:'),
+      blank(),
+      new D.Table({ width: { size: 9026, type: WT.DXA }, columnWidths: [9026], rows: [new D.TableRow({ children: [new D.TableCell({ borders: HBRD, shading: { fill: LBLUE, type: ST.CLEAR }, margins: { top: 160, bottom: 160, left: 200, right: 200 }, width: { size: 9026, type: WT.DXA }, children: [
+        new D.Paragraph({ children: [run("SUPPLIER / LICENSOR", { bold: true, size: 26, color: BLUE })] }),
+        new D.Paragraph({ spacing: { before: 60 }, children: [run("Company Name:  i-Scream arts Co., Ltd.")] }),
+        new D.Paragraph({ children: [run("Address:  225-20 Pangyoyeok-ro, Bundang-gu, Seongnam-si, Gyeonggi-do, the Republic of Korea")] }),
+        new D.Paragraph({ children: [run("Representative:  Kiseok Park,  President")] }),
+        new D.Paragraph({ children: [run("Software Product:  ART BONBON", { bold: true })] })
+      ] })] })] }),
+      blank(),
+      new D.Table({ width: { size: 9026, type: WT.DXA }, columnWidths: [9026], rows: [new D.TableRow({ children: [new D.TableCell({ borders: BORD, margins: { top: 160, bottom: 160, left: 200, right: 200 }, width: { size: 9026, type: WT.DXA }, children: [
+        new D.Paragraph({ children: [run("CUSTOMER / LICENSEE", { bold: true, size: 26 })] }),
+        new D.Paragraph({ spacing: { before: 60 }, children: [run("Company Name:  " + gv("custCompany"))] }),
+        new D.Paragraph({ children: [run("Address:  " + gv("custAddress"))] }),
+        new D.Paragraph({ children: [run("Representative:  " + (gv("custRep") || "___") + "    Title:  " + (gv("custTitle") || "___"))] }),
+        new D.Paragraph({ children: [run("Contact (Email):  " + gv("custEmail"))] })
+      ] })] })] }),
+      blank(),
+      para('Supplier and Customer are hereinafter individually referred to as a "Party" and collectively as the "Parties". In consideration of the mutual promises set forth herein, the Parties agree as follows:'),
+      blank(),
+      heading("ORDER DETAILS"),
+      para("Customer hereby agrees to purchase the following license(s) from Supplier:"),
+      blank(),
+      new D.Table({ width: { size: 9026, type: WT.DXA }, columnWidths: ws, rows: [
+        new D.TableRow({ tableHeader: true, children: ["No.", "Product / Module", "License Type", "Seats", "Unit Price", "Qty", "Total"].map(function(lbl, i) {
+          return new D.TableCell({ borders: HBRD, shading: { fill: BLUE, type: ST.CLEAR }, width: { size: ws[i], type: WT.DXA }, margins: { top: 80, bottom: 80, left: 80, right: 80 }, children: [new D.Paragraph({ alignment: AT.CENTER, children: [run(lbl, { bold: true, size: 17, color: "FFFFFF" })] })] });
+        }) })
+      ].concat(orderRows).concat([
+        new D.TableRow({ children: [
+          new D.TableCell({ borders: HBRD, shading: { fill: LBLUE, type: ST.CLEAR }, columnSpan: 6, width: { size: 8026, type: WT.DXA }, margins: { top: 100, bottom: 100, left: 80, right: 80 }, children: [new D.Paragraph({ alignment: AT.RIGHT, children: [run("TOTAL AMOUNT", { bold: true, color: BLUE })] })] }),
+          new D.TableCell({ borders: HBRD, shading: { fill: LBLUE, type: ST.CLEAR }, width: { size: 1000, type: WT.DXA }, margins: { top: 100, bottom: 100, left: 80, right: 80 }, children: [new D.Paragraph({ children: [run(grandTotalTxt, { bold: true, color: BLUE })] })] })
+        ]})
+      ]) }),
+      blank(),
+      new D.Table({ width: { size: 9026, type: WT.DXA }, columnWidths: [2800, 6226], rows: [
+        frow("Currency:", cur),
+        frow("Payment Terms:", gv("paymentTerms") || "[*]"),
+        frow("Payment Method:", gv("paymentMethod") || "[*]"),
+        frow("Delivery Method:", "Electronic delivery - access credentials and/or download link provided directly to Customer"),
+        frow("Delivery Date:", gv("deliveryDate") || "[*]"),
+        frow("License Start Date:", licStart),
+        frow("License End Date:", licEnd),
+        frow("Special Terms:", gv("specialTerms") || "N/A")
+      ]}),
+      blank(),
+      new D.Paragraph({ children: [new D.PageBreak()] }),
+      heading("GENERAL TERMS AND CONDITIONS")
+    ];
+
+    var clauses = [
+      clause("1", "Grant of License", 'Subject to the terms of this Agreement and payment of applicable fees, Supplier hereby grants to Customer a non-exclusive, non-transferable, non-sublicensable license to access and use ART BONBON (the "Software") solely for Customer\'s internal business purposes, limited to the number of users/seats specified in the Order Details above. This license does not include the right to modify, reverse engineer, decompile, disassemble, or create derivative works of the Software.'),
+      clause("2", "Delivery & Activation", "Supplier shall deliver the Software electronically by providing access credentials, a download link, or an activation key directly to Customer at the contact information provided above. No physical shipment is involved. Delivery shall be deemed complete upon Supplier's transmission of access credentials to Customer."),
+      clause("3", "Account & Access Management", "Customer is responsible for creating and managing user accounts within the licensed seat limit. Customer shall ensure that: (a) each account is used only by the individual to whom it is assigned and shall not be shared; (b) all account credentials are kept confidential and secure; (c) Customer promptly notifies Supplier at " + supportEm + " of any unauthorized access or security breach; (d) accounts are not transferred or assigned to any third party without Supplier's prior written consent; and (e) upon termination of an individual user's relationship with Customer, the corresponding account is promptly deactivated."),
+      clause("4", "License Restrictions", "Customer shall not: (a) copy, reproduce, or duplicate the Software beyond what is necessary for authorized use; (b) sell, resell, sublicense, transfer, assign, rent, lease, or otherwise distribute the Software or any rights therein to any third party; (c) use the Software for service bureau, time-sharing, or application service provider purposes; (d) remove, alter, or obscure any proprietary notices or marks on the Software; or (e) use the Software in any manner that violates applicable law or this Agreement."),
+      clause("5", "Fees & Payment", "Customer shall pay all fees as specified in the Order Details. All fees are non-refundable unless otherwise expressly stated. Invoices are due and payable within the payment terms stated in the Order Details. Supplier reserves the right to suspend access to the Software upon failure to pay by the due date. Any overdue amounts shall accrue interest at a rate of 1.5% per month (or the maximum rate permitted by applicable law, whichever is less)."),
+      clause("6", "Subscription Renewal", "For subscription-based licenses, the license term shall automatically renew for successive periods equal to the initial subscription term unless either Party provides written notice of non-renewal at least sixty (60) days prior to the end of the then-current term. Renewal fees shall be at Supplier's then-current standard rates unless otherwise agreed in writing."),
+      clause("7", "Updates & Support", "Supplier shall provide Customer with standard software updates, bug fixes, and patches during the license term at no additional charge. For technical support, Customer may contact Supplier at " + supportEm + ". Supplier shall use commercially reasonable efforts to respond within two (2) business days."),
+      clause("8", "Ownership & Intellectual Property", "The Software and all intellectual property rights therein remain the exclusive property of Supplier. This Agreement grants Customer only the limited license rights expressly stated herein. Customer acquires no ownership interest in the Software."),
+      clause("9", "Data & Privacy", "Each Party shall comply with all applicable data protection and privacy laws, including but not limited to: (a) the Personal Information Protection Act of the Republic of Korea (PIPA); (b) the EU General Data Protection Regulation (GDPR), where applicable; (c) the Family Educational Rights and Privacy Act (FERPA), where the Software is used in connection with educational records of students in the United States; and (d) the Children's Online Privacy Protection Act (COPPA), where the Software collects personal information from children under the age of 13 in the United States. In the event of a data breach, Supplier shall notify Customer without undue delay."),
+      clause("10", "Confidential Information", 'Each Party shall hold the other\'s Confidential Information in strict confidence and shall not disclose it to any third party without prior written consent. "Confidential Information" includes the Software, its source code, technical documentation, pricing, and any non-public business information. Confidentiality obligations survive for five (5) years from the date of disclosure.'),
+      clause("11", "Warranties", 'Supplier warrants that: (a) it has full right and authority to grant the license set forth herein; (b) the Software will perform materially in accordance with its documentation for a period of one (1) year from the License Start Date; and (c) the Software does not, to Supplier\'s knowledge, infringe any third-party intellectual property rights. EXCEPT AS EXPRESSLY STATED, THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.'),
+      clause("12", "Indemnification", "Supplier shall indemnify and hold Customer harmless from any third-party claims alleging that the Software infringes any patent, copyright, trademark, or trade secret. Customer shall indemnify Supplier from any claims arising from Customer's breach of this Agreement or unauthorized use of the Software."),
+      clause("13", "Limitation of Liability", "IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, PUNITIVE, OR CONSEQUENTIAL DAMAGES. SUPPLIER'S TOTAL CUMULATIVE LIABILITY SHALL NOT EXCEED THE TOTAL FEES PAID BY CUSTOMER IN THE TWELVE (12) MONTHS IMMEDIATELY PRECEDING THE EVENT GIVING RISE TO THE CLAIM. THESE LIMITATIONS APPLY TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW."),
+      clause("14", "Term & Termination", "This Agreement commences on the Effective Date and continues for the license term specified in the Order Details. Either Party may terminate upon written notice if the other Party materially breaches this Agreement and fails to cure within thirty (30) days. Upon termination, the license immediately terminates and Customer shall cease all access to the Software. Sections 8, 9, 10, 13, 15, and 16 survive termination."),
+      clause("15", "Governing Law & Dispute Resolution", "This Agreement shall be governed by the laws of " + govLaw + ", without regard to its conflict of laws principles. Any dispute shall first be attempted to be resolved through good-faith negotiation for thirty (30) days. If not resolved, the dispute shall be finally settled by arbitration in " + juris + " in accordance with the rules of the Korean Commercial Arbitration Board (KCAB), conducted in English. Either Party may seek interim injunctive relief from a court of competent jurisdiction to prevent irreparable harm."),
+      clause("16", "Export Control", "Customer shall not export, re-export, or transfer the Software in violation of applicable export control laws, including the Foreign Trade Act of the Republic of Korea and the U.S. Export Administration Regulations (EAR). Customer represents it is not located in, or a national of, any country subject to applicable trade sanctions."),
+      clause("17", "Force Majeure", "Neither Party shall be liable for any delay or failure in performance resulting from causes beyond its reasonable control, including acts of God, government actions, war, cyber-attacks, internet outages, epidemic, or pandemic."),
+      clause("18", "General Provisions", "This Agreement constitutes the entire agreement and supersedes all prior agreements. Amendments must be in writing signed by authorized representatives of both Parties. If any provision is held invalid, the remaining provisions remain in full force. Neither Party may assign this Agreement without the other's prior written consent.")
+    ];
+
+    clauses.forEach(function(c) { c.forEach(function(p) { children.push(p); }); });
+
+    children.push(new D.Paragraph({ children: [new D.PageBreak()] }));
+    children.push(heading("SIGNATURES"));
+    children.push(para("IN WITNESS WHEREOF, the Parties have executed this Software License Sales Agreement as of the date last written below."));
+    children.push(blank());
+    children.push(blank());
+    children.push(sigBlock("SUPPLIER  -  i-Scream arts Co., Ltd.", "CUSTOMER / LICENSEE"));
+    children.push(blank());
+    children.push(new D.Paragraph({ spacing: { before: 200 }, alignment: AT.CENTER, children: [run("This Agreement is subject to the General Terms and Conditions set forth herein.", { size: 18, color: "888888", italic: true })] }));
+
+    children.push(new D.Paragraph({ children: [new D.PageBreak()] }));
+    children.push(new D.Paragraph({ spacing: { before: 240, after: 80 }, alignment: AT.CENTER, children: [run("EXHIBIT A  -  SOFTWARE SPECIFICATION", { bold: true, size: 32, color: BLUE })] }));
+    children.push(new D.Paragraph({ spacing: { before: 0, after: 200 }, alignment: AT.CENTER, children: [run("ART BONBON  |  i-Scream arts Co., Ltd.", { size: 20, color: "888888", italic: true })] }));
+    children.push(new D.Table({ width: { size: 9026, type: WT.DXA }, columnWidths: [2800, 6226], rows: [
+      frow("Product Name:", "ART BONBON"),
+      frow("Version:", gv("swVersion") || "[*]"),
+      frow("Platform / Compatibility:", gv("swPlatform") || "[*]"),
+      frow("Key Features:", gv("swFeatures") || "[*]"),
+      frow("Language Support:", gv("swLang") || "[*]"),
+      frow("Support Contact:", gv("swSupport") || "[*]"),
+      frow("Documentation URL:", gv("swDoc") || "[*]")
+    ]}));
+    children.push(blank());
+
+    var doc = new D.Document({
+      styles: { default: { document: { run: { font: "Arial", size: 20 } } } },
+      sections: [{
+        properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 } } },
+        headers: { default: new D.Header({ children: [headerPara] }) },
+        footers: { default: new D.Footer({ children: [footerPara] }) },
+        children: children
+      }]
+    });
+
+    D.Packer.toBuffer(doc).then(function(buf) {
+      var blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement("a");
+      var company = gv("custCompany").replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 30);
+      var date    = gv("effectiveDate").replace(/-/g, "") || "undated";
+      a.href = url;
+      a.download = "ART BONBON_Agreement_" + company + "_" + date + ".docx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("genBtn").disabled = false;
+      document.getElementById("statusMsg").textContent = "";
+      var toast = document.getElementById("toast");
+      document.getElementById("toastMsg").textContent = "Generated: ART BONBON_Agreement_" + company + "_" + date + ".docx";
+      toast.classList.add("show");
+      setTimeout(function() { toast.classList.remove("show"); }, 5000);
+    }).catch(function(e) {
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("genBtn").disabled = false;
+      document.getElementById("statusMsg").textContent = "Error: " + e.message;
+      document.getElementById("statusMsg").className = "err";
+      console.error(e);
+    });
+  }
+
+})();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.umd.js"></script>
+</body>
+</html>
